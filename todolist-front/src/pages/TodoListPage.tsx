@@ -11,6 +11,7 @@ import TodoItem from "../components/TodoItem";
 export default function TodoListPage() {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [newTodo, setNewTodo] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const loadTodos = async () => {
         try {
@@ -22,10 +23,15 @@ export default function TodoListPage() {
     };
 
     const handleAdd = async () => {
-        if (!newTodo.trim()) return;
+        if (!newTodo.trim()) {
+            setErrorMessage("할 일을 입력해주세요");
+            setTimeout(() => setErrorMessage(""), 3000);
+            return;
+        }
         try {
             await createTodo(newTodo);
             setNewTodo("");
+            setErrorMessage("");
             loadTodos();
         } catch (error) {
             console.log("추가 실패:", error);
@@ -65,6 +71,11 @@ export default function TodoListPage() {
                         onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
                     />
                     <button onClick={handleAdd}>추가</button>
+                    {errorMessage && (
+                        <div className="error-tooltip">
+                            {errorMessage}
+                        </div>
+                    )}
                 </div>
                 {todos.map((todo) => (
                     <TodoItem

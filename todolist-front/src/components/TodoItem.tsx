@@ -18,6 +18,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
     const [subTodos, setSubTodos] = useState<SubTodo[]>([]);
     const [showSub, setShowSub] = useState<boolean>(false);
     const [newSub, setNewSub] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const loadSubTodos = useCallback(async () => {
         try {
@@ -29,10 +30,15 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
     }, [todo.id]);
 
     const handleAddSubTodo = async () => {
-        if (!newSub.trim()) return;
+        if (!newSub.trim()) {
+            setErrorMessage("세부 항목을 입력해주세요!");
+            setTimeout(() => setErrorMessage(""), 3000);
+            return;
+        }
         try {
             await createSubTodo(todo.id, newSub);
             setNewSub("");
+            setErrorMessage("");
             loadSubTodos();
         } catch (error) {
             console.log("서브투두 추가 실패:", error);
@@ -140,6 +146,11 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
                                 onKeyPress={(e) => e.key === 'Enter' && handleAddSubTodo()}
                             />
                             <button onClick={handleAddSubTodo}>추가</button>
+                            {errorMessage && (
+                                <div className="error-tooltip">
+                                    {errorMessage}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
