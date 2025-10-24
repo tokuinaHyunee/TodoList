@@ -3,10 +3,10 @@ import {
     getSubTodos,
     createSubTodo,
     toggleSubTodoCheck,
-    deleteSubTodo,
     type SubTodo,
     type Todo,
 } from "../api/todoApi";
+import SubTodoItem from "./SubTodoItem";
 
 interface TodoItemProps {
     todo: Todo;
@@ -45,27 +45,17 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         }
     };
 
-    const handleToggleSub = async (id: number) => {
-        try {
-            await toggleSubTodoCheck(id);
-            loadSubTodos();
-        } catch (error) {
-            console.log("서브투두 토글 실패:", error);
-        }
+    const handleSubTodoToggle = () => {
+        loadSubTodos();
     };
 
-    const handleDeleteSub = async (id: number) => {
-        try {
-            await deleteSubTodo(id);
-            loadSubTodos();
-        } catch (error) {
-            console.log("서브투두 삭제 실패:", error);
-        }
+    const handleSubTodoDelete = () => {
+        loadSubTodos();
     };
 
     useEffect(() => {
         if (showSub) loadSubTodos();
-    }, [showSub]);
+    }, [showSub, loadSubTodos]);
 
         return (
             <div className="todo-item">
@@ -119,24 +109,13 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 
                 {showSub && (
                     <div className="subtodo-list">
-                        {subTodos.map((s) => (
-                            <div key={s.id} className="subtodo-item">
-                                <div 
-                                    className={`subtodo-checkbox ${s.checked ? "checked" : ""}`}
-                                    onClick={() => handleToggleSub(s.id)}
-                                ></div>
-                                <div className={`subtodo-title ${s.checked ? "checked" : ""}`}>
-                                    {s.title}
-                                </div>
-                                <div className="subtodo-actions">
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => handleDeleteSub(s.id)}
-                                    >
-                                        삭제
-                                    </button>
-                                </div>
-                            </div>
+                        {subTodos.map((subTodo) => (
+                            <SubTodoItem
+                                key={subTodo.id}
+                                subTodo={subTodo}
+                                onToggle={handleSubTodoToggle}
+                                onDelete={handleSubTodoDelete}
+                            />
                         ))}
                         <div className="subtodo-input">
                             <input
