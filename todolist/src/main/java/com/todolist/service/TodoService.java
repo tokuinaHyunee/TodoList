@@ -1,43 +1,62 @@
 package com.todolist.service;
 
 import com.todolist.domain.Todo;
+import com.todolist.domain.User;
 import com.todolist.repository.TodoRepository;
+import com.todolist.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-// crud, 체크 토클 로직
 @Service
 @RequiredArgsConstructor
 public class TodoService {
+
     private final TodoRepository todoRepository;
-    // 전체 목록 조회
-    public List<Todo> getAllTodos() {
-        return todoRepository.findAll();
+    private final UserRepository userRepository;
+
+    public List<Todo> getTodos(Long userId) {
+        return todoRepository.findByUserId(userId);
     }
-    // 작성
-    public Todo createTodo(String title) {
+
+    public Todo createTodo(Long userId, String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new RuntimeException("제목을 입력해주세요.");
+        }
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+        
         Todo todo = Todo.builder()
-                    .title(title)
-                    .checked(false)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+                .title(title.trim())
+                .checked(false)
+                .createdAt(LocalDateTime.now())
+                .user(user)
+                .build();
         return todoRepository.save(todo);
     }
-    // 삭제
+
     public void deleteTodo(Long id) {
         todoRepository.deleteById(id);
     }
-    // 체크 상태 토글 완료/해제
+
     public Todo toggleCheck(Long id) {
-        Optional<Todo> optionalTodo = todoRepository.findById(id);
-        if (optionalTodo.isPresent()) {
-            Todo todo = optionalTodo.get();
-            todo.setChecked(!todo.isChecked());
-            return todoRepository.save(todo);
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 Todo입니다."));
+        todo.setChecked(!todo.isChecked());
+        return todoRepository.save(todo);
+    }
+
+    public Todo updateTodoTitle(Long id, String newTitle) {
+        if (newTitle == null || newTitle.trim().isEmpty()) {
+            throw new RuntimeException("제목을 입력해주세요.");
         }
-        throw new IllegalArgumentException("Todo not found: " + id);
+        
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 Todo입니다."));
+        todo.setTitle(newTitle.trim());
+        return todoRepository.save(todo);
     }
 }

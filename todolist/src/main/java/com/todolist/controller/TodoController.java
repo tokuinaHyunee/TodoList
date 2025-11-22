@@ -1,37 +1,54 @@
 package com.todolist.controller;
 
 import com.todolist.domain.Todo;
+import com.todolist.domain.User;
 import com.todolist.service.TodoService;
+import com.todolist.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/todos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // 프론트에서 요청 가능하도록 CORS 허용
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class TodoController {
+
     private final TodoService todoService;
-    // 전체 목록 조회
+    private final UserService userService;
+
     @GetMapping
-    public List<Todo> getAllTodos() {
-        return todoService.getAllTodos();
+    public List<Todo> getTodos(HttpSession session) {
+        String username = (String) session.getAttribute("user");
+        if (username == null)
+            return List.of();
+
+        User user = userService.findByUsername(username);
+        return todoService.getTodos(user.getId());
     }
-    // 목록 추가
+
     @PostMapping
-    public Todo createTodo(@RequestBody Map<String, String> body) {
-        String title = body.get("title");
-        return todoService.createTodo(title);
+    public Todo createTodo(@RequestBody Map<String, String> body, HttpSession session) {
+        String username = (String) session.getAttribute("user");
+        User user = userService.findByUsername(username);
+        return todoService.createTodo(user.getId(), body.get("title"));
     }
-    // 목록 삭제
-    @DeleteMapping("/{id}")
-    public void deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id);
-    }
-    // 체크 토글
+
     @PatchMapping("/{id}/check")
     public Todo toggleCheck(@PathVariable Long id) {
         return todoService.toggleCheck(id);
+    }
+
+    @PatchMapping("/{id}")
+    public Todo updateTodo(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        return todoService.updateTodoTitle(id, body.get("title"));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTodo(@PathVariable Long id) {
+        todoService.deleteTodo(id);
     }
 }
