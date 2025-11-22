@@ -6,6 +6,7 @@ import com.todolist.repository.TodoRepository;
 import com.todolist.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +19,39 @@ public class TodoService {
     private final UserRepository userRepository;
 
     public List<Todo> getTodos(Long userId) {
-        return todoRepository.findByUserId(userId);
+        List<Todo> todos = todoRepository.findByUserId(userId);
+        // 최신순으로 정렬
+        todos.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        return todos;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Todo> getAllTodos() {
+        // 최신순으로 정렬하여 가져오기
+        List<Todo> todos = todoRepository.findAllByOrderByCreatedAtDesc();
+        // User와 SubTodos를 명시적으로 초기화하여 프록시 문제 방지
+        todos.forEach(todo -> {
+            // User 초기화 - Hibernate.initialize() 대신 직접 접근
+            if (todo.getUser() != null) {
+                User user = todo.getUser();
+                // User의 모든 필드를 접근하여 프록시 초기화
+                user.getUsername();
+                user.getId();
+            }
+            // SubTodos 초기화
+            if (todo.getSubTodos() != null) {
+                // 리스트 크기를 확인하여 초기화
+                todo.getSubTodos().size();
+                // 각 SubTodo의 필드도 접근하여 초기화
+                todo.getSubTodos().forEach(subTodo -> {
+                    subTodo.getId();
+                    subTodo.getTitle();
+                    subTodo.isChecked();
+                    subTodo.getCreatedAt();
+                });
+            }
+        });
+        return todos;
     }
 
     public Todo createTodo(Long userId, String title) {
@@ -47,6 +80,11 @@ public class TodoService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 Todo입니다."));
         todo.setChecked(!todo.isChecked());
         return todoRepository.save(todo);
+    }
+
+    public Todo findById(Long id) {
+        return todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 Todo입니다."));
     }
 
     public Todo updateTodoTitle(Long id, String newTitle) {

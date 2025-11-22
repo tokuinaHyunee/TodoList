@@ -1,16 +1,5 @@
-/* ============================================
-   2025 Winter Trend Design System
-   - Dark Mode Friendly
-   - Glassmorphism
-   - Minimalist
-   - Smooth Gradients
-   ============================================ */
-
-/* ========================
-   CSS Variables & Reset
-   ======================== */
 :root {
-    /* Color Palette - Winter 2025 (Bright) */
+    /* 색상 팔레트 */
     --bg-primary: #475569;
     --bg-secondary: #64748b;
     --bg-tertiary: #94a3b8;
@@ -64,10 +53,11 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative;
 }
 
 /* ========================
-   Main Container
+   메인 컨테이너
    ======================== */
 .container {
     max-width: 900px;
@@ -81,7 +71,57 @@ body {
 }
 
 /* ========================
-   Typography
+   자기글만 보기 버튼
+   ======================== */
+.my-todos-button {
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+.my-todos-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.my-todos-button:hover::before {
+    left: 100%;
+}
+
+.my-todos-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.my-todos-button:active {
+    transform: translateY(0);
+}
+
+.my-todos-button.active {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: var(--text-primary);
+    border-color: transparent;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ========================
+   타이포그래피
    ======================== */
 h2 {
     font-size: 2.75rem;
@@ -105,7 +145,7 @@ h3 {
 }
 
 /* ========================
-   Auth Bar (Container 내부)
+   인증 바
    ======================== */
 .auth-bar {
     display: flex;
@@ -164,11 +204,43 @@ h3 {
 }
 
 /* ========================
-   Input Fields
+   정렬 링크
+   ======================== */
+.sort-links {
+    text-align: left;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    font-size: 12pt;
+}
+
+.sort-links a {
+    color: #64748b;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.sort-links a:hover {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.sort-links a.active {
+    color: var(--accent-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sort-links span {
+    color: #cbd5e1;
+    margin: 0 0.5rem;
+}
+
+/* ========================
+   입력 필드
    ======================== */
 input[type="text"],
-input[type="password"],
-input[type="email"] {
+input[type="password"] {
     width: 100%;
     padding: 1rem 1.25rem;
     border: 1.5px solid #e2e8f0;
@@ -184,8 +256,7 @@ input[type="email"] {
 }
 
 input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus {
+input[type="password"]:focus {
     border-color: var(--accent-primary);
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -193,13 +264,12 @@ input[type="email"]:focus {
 }
 
 input[type="text"]::placeholder,
-input[type="password"]::placeholder,
-input[type="email"]::placeholder {
+input[type="password"]::placeholder {
     color: #94a3b8;
 }
 
 /* ========================
-   Search Row (검색창 + 로그인 버튼)
+   검색 행
    ======================== */
 .search-row {
     display: flex;
@@ -210,7 +280,7 @@ input[type="email"]::placeholder {
 }
 
 /* ========================
-   Search Box - Modern Design
+   검색 박스
    ======================== */
 .search-box {
     position: relative;
@@ -249,7 +319,7 @@ input[type="email"]::placeholder {
 }
 
 /* ========================
-   Buttons
+   버튼
    ======================== */
 button {
     padding: 0.875rem 1.75rem;
@@ -279,22 +349,64 @@ button:disabled {
     transform: none;
 }
 
-/* Primary Button */
+/* 주요 버튼 */
 button.primary-btn,
 .todo-input-container button,
 .subtodo-input button {
     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     color: var(--text-primary);
     box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+button.primary-btn::before,
+.todo-input-container button::before,
+.subtodo-input button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+button.primary-btn:hover::before,
+.todo-input-container button:hover::before,
+.subtodo-input button:hover::before {
+    left: 100%;
 }
 
 button.primary-btn:hover,
 .todo-input-container button:hover,
 .subtodo-input button:hover {
+    transform: translateY(-2px);
     box-shadow: var(--shadow-glow);
 }
 
-/* Danger Button */
+button.primary-btn:active,
+.todo-input-container button:active,
+.subtodo-input button:active {
+    transform: translateY(0);
+}
+
+/* 수정 버튼 */
+.edit-btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+}
+
+.edit-btn:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+/* 위험 버튼 */
 .delete-btn,
 .confirm-btn {
     background: linear-gradient(135deg, var(--danger), var(--danger-light));
@@ -309,7 +421,7 @@ button.primary-btn:hover,
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
 }
 
-/* Secondary Button */
+/* 보조 버튼 */
 button.secondary-btn,
 .cancel-btn {
     background: #ffffff;
@@ -324,7 +436,7 @@ button.secondary-btn:hover,
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Close Button */
+/* 닫기 버튼 */
 .close-btn {
     background: #f1f5f9;
     color: #64748b;
@@ -338,12 +450,12 @@ button.secondary-btn:hover,
 }
 
 /* ========================
-   Todo Input Container
+   할일 입력 컨테이너
    ======================== */
 .todo-input-container {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .todo-input-container input {
@@ -383,7 +495,7 @@ button.secondary-btn:hover,
 }
 
 /* ========================
-   Todo Item Card
+   할일 아이템 카드
    ======================== */
 .todo-item {
     padding: 1.75rem;
@@ -440,6 +552,7 @@ button.secondary-btn:hover,
     color: var(--text-primary);
     font-size: 16px;
     font-weight: bold;
+
 }
 
 .todo-title {
@@ -450,10 +563,35 @@ button.secondary-btn:hover,
     min-width: 0;
 }
 
+.todo-title.editable {
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.todo-title.editable:hover {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px dashed var(--accent-primary);
+}
+
 .todo-title.checked {
     text-decoration: line-through;
     color: #94a3b8;
     opacity: 0.6;
+}
+
+.todo-title-edit {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #1a1a1a;
+    padding: 0.25rem 0.5rem;
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    outline: none;
+    min-width: 0;
 }
 
 .todo-date {
@@ -462,20 +600,13 @@ button.secondary-btn:hover,
     white-space: nowrap;
 }
 
-.todo-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: auto;
-}
-
 /* ========================
-   SubTodo Section
+   세부 할일 섹션
    ======================== */
 .subtodo-list {
     margin-top: 1.25rem;
     padding-left: 2rem;
     border-left: 2px solid var(--accent-primary);
-    opacity: 0.6;
 }
 
 .subtodo-item {
@@ -542,27 +673,65 @@ button.secondary-btn:hover,
     opacity: 0.6;
 }
 
+.subtodo-title-edit {
+    flex: 1;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #334155;
+    padding: 0.25rem 0.5rem;
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    outline: none;
+    min-width: 0;
+}
+
 .subtodo-input {
     display: flex;
-    gap: 0.625rem;
+    gap: 1rem;
     margin-top: 1rem;
 }
 
 .subtodo-input input {
     flex: 1;
     margin: 0;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    background: #ffffff;
+    color: #1a1a1a;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    text-align: left;
+}
+
+.subtodo-input input:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.subtodo-input input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.subtodo-input input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
 }
 
 .subtodo-input button {
     padding: 0.75rem 1.25rem;
     font-size: 0.875rem;
     white-space: nowrap;
+    border-radius: 50px;
 }
 
 /* ========================
-   Modal
+   모달
    ======================== */
 .modal-overlay {
     position: fixed;
@@ -593,8 +762,7 @@ button.secondary-btn:hover,
     animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.auth-modal input,
-.delete-modal input {
+.auth-modal input {
     margin-bottom: 1.25rem;
     width: 100%;
     padding: 1rem 1.25rem;
@@ -610,27 +778,23 @@ button.secondary-btn:hover,
     box-sizing: border-box;
 }
 
-.auth-modal input:focus,
-.delete-modal input:focus {
+.auth-modal input:focus {
     border-color: var(--accent-primary);
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
 }
 
-.auth-modal input::placeholder,
-.delete-modal input::placeholder {
+.auth-modal input::placeholder {
     color: #94a3b8;
 }
 
-.auth-modal button,
-.delete-modal button {
+.auth-modal button {
     width: 100%;
     margin-bottom: 0.875rem;
 }
 
-.auth-modal button:last-child,
-.delete-modal button:last-child {
+.auth-modal button:last-child {
     margin-bottom: 0;
 }
 
@@ -665,7 +829,7 @@ button.secondary-btn:hover,
 }
 
 /* ========================
-   Animations
+   애니메이션
    ======================== */
 @keyframes fadeIn {
     from {
@@ -699,12 +863,13 @@ button.secondary-btn:hover,
 }
 
 /* ========================
-   Responsive Design
+   반응형 디자인
    ======================== */
 @media (max-width: 768px) {
     body {
         padding: 1rem;
     }
+
 
     .container {
         padding: 2rem 1.5rem;
@@ -760,11 +925,6 @@ button.secondary-btn:hover,
         gap: 0.75rem;
     }
 
-    .todo-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
     .subtodo-list {
         padding-left: 1rem;
     }
@@ -798,3 +958,4 @@ button.secondary-btn:hover,
         padding: 1.5rem 1rem;
     }
 }
+

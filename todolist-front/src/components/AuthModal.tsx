@@ -10,17 +10,14 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   
   // 실시간 검증 오류 메시지
   const [usernameError, setUsernameError] = useState("");
-  const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   
   // Debounce를 위한 타이머
   const usernameTimerRef = useRef<number | null>(null);
-  const emailTimerRef = useRef<number | null>(null);
 
   // 아이디 중복 검사
   const checkUsername = async (value: string) => {
@@ -29,48 +26,16 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       return;
     }
     
-    try {
-      const res = await api.get("/auth/check-username", {
-        params: { username: value }
-      });
-      if (res.data.exists) {
-        setUsernameError("이미 존재하는 아이디입니다.");
-      } else {
-        setUsernameError("");
-      }
-    } catch (error) {
-      // 오류 발생 시 무시 (네트워크 오류 등)
+    const res = await api.get("/auth/check-username", {
+      params: { username: value }
+    });
+    if (res.data.exists) {
+      setUsernameError("이미 존재하는 아이디입니다.");
+    } else {
       setUsernameError("");
     }
   };
 
-  // 이메일 중복 검사
-  const checkEmail = async (value: string) => {
-    if (!value.trim()) {
-      setEmailError("");
-      return;
-    }
-    
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setEmailError("올바른 이메일 형식을 입력해주세요.");
-      return;
-    }
-    
-    try {
-      const res = await api.get("/auth/check-email", {
-        params: { email: value }
-      });
-      if (res.data.exists) {
-        setEmailError("이미 존재하는 이메일입니다.");
-      } else {
-        setEmailError("");
-      }
-    } catch (error) {
-      setEmailError("");
-    }
-  };
 
   // 비밀번호 조건 검증
   const validatePassword = (value: string) => {
@@ -114,23 +79,6 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
     }
   };
 
-  // 이메일 변경 핸들러 (debounce 적용)
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    
-    if (isRegister) {
-      // 이전 타이머 취소
-      if (emailTimerRef.current) {
-        clearTimeout(emailTimerRef.current);
-      }
-      
-      // 500ms 후에 중복 검사 실행
-      emailTimerRef.current = setTimeout(() => {
-        checkEmail(value);
-      }, 500);
-    }
-  };
 
   // 비밀번호 변경 핸들러 (실시간 검증)
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +93,6 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   // 회원가입/로그인 전환 시 오류 메시지 초기화
   useEffect(() => {
     setUsernameError("");
-    setEmailError("");
     setPasswordError("");
     setError("");
   }, [isRegister]);
@@ -155,9 +102,6 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
     return () => {
       if (usernameTimerRef.current) {
         clearTimeout(usernameTimerRef.current);
-      }
-      if (emailTimerRef.current) {
-        clearTimeout(emailTimerRef.current);
       }
     };
   }, []);
@@ -183,14 +127,6 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         setError(passwordError);
         return;
       }
-      if (!email.trim()) {
-        setError("이메일을 입력해주세요.");
-        return;
-      }
-      if (emailError) {
-        setError(emailError);
-        return;
-      }
     } else {
       // 로그인 시 필수 필드 검증
       if (!username.trim()) {
@@ -205,12 +141,11 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
 
     try {
       if (isRegister) {
-        await api.post("/auth/register", { username, password, email });
+        await api.post("/auth/register", { username, password });
         alert("회원가입 성공!");
         setIsRegister(false);
         setUsername("");
         setPassword("");
-        setEmail("");
       } else {
         await api.post("/auth/login", { username, password });
         // 백엔드가 쿠키로 토큰을 보내므로, 성공만 확인
@@ -263,6 +198,11 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
             placeholder="비밀번호"
             value={password}
             onChange={handlePasswordChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSubmit();
+              }
+            }}
           />
           {isRegister && passwordError && (
             <div className="error-message" style={{ fontSize: "0.85rem", marginTop: "0.25rem" }}>
@@ -271,20 +211,6 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
           )}
         </div>
 
-        {isRegister && (
-          <div>
-            <input
-              placeholder="이메일"
-              value={email}
-              onChange={handleEmailChange}
-            />
-            {emailError && (
-              <div className="error-message" style={{ fontSize: "0.85rem", marginTop: "0.25rem" }}>
-                {emailError}
-              </div>
-            )}
-          </div>
-        )}
 
         {error && <div className="error-message">{error}</div>}
 

@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
@@ -56,11 +57,13 @@ public class AuthController {
 
     // 현재 로그인중인 사용자 조회
     @GetMapping("/me")
-    public User currentUser(HttpSession session) {
+    public ResponseEntity<User> currentUser(HttpSession session) {
         Long id = (Long) session.getAttribute("userId");
-        if (id == null)
-            return null;
-        return userService.findById(id);
+        if (id == null) {
+            return ResponseEntity.ok().body(null);
+        }
+        User user = userService.findById(id);
+        return ResponseEntity.ok().body(user);
     }
 
     // 로그아웃 (세션 + 쿠키 둘 다 제거)
@@ -79,13 +82,6 @@ public class AuthController {
     @GetMapping("/check-username")
     public Map<String, Boolean> checkUsername(@RequestParam String username) {
         boolean exists = userService.existsByUsername(username);
-        return Map.of("exists", exists);
-    }
-
-    // 이메일 중복 검사
-    @GetMapping("/check-email")
-    public Map<String, Boolean> checkEmail(@RequestParam String email) {
-        boolean exists = userService.existsByEmail(email);
         return Map.of("exists", exists);
     }
 }

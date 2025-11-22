@@ -46,4 +46,20 @@ public class SubTodoService {
     public void deleteSubTodo(Long id) {
         subTodoRepository.deleteById(id);
     }
+
+    public SubTodo findById(Long id) {
+        return subTodoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 SubTodo입니다."));
+    }
+
+    public SubTodo updateSubTodoTitle(Long id, String newTitle) {
+        if (newTitle == null || newTitle.trim().isEmpty()) {
+            throw new RuntimeException("제목을 입력해주세요.");
+        }
+        
+        SubTodo subTodo = subTodoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 SubTodo입니다."));
+        subTodo.setTitle(newTitle.trim());
+        return subTodoRepository.save(subTodo);
+    }
 }

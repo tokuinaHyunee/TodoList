@@ -25,26 +25,16 @@ export default function TodoItem({
   const [newSub, setNewSub] = useState("");
 
   const loadSub = useCallback(async () => {
-    try {
-      const res = await getSubTodos(todo.id);
-      setSubTodos(res.data);
-    } catch (error) {
-      console.error("세부 항목 로드 실패:", error);
-      setSubTodos([]);
-    }
+    const res = await getSubTodos(todo.id);
+    setSubTodos(res.data);
   }, [todo.id]);
 
   // SubTodo 추가
   const addSubTodo = async () => {
     if (!newSub.trim()) return;
-    try {
-      await createSubTodo(todo.id, newSub);
-      setNewSub("");
-      loadSub();
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      alert(err.response?.data?.message || "세부 항목 추가에 실패했습니다.");
-    }
+    await createSubTodo(todo.id, newSub);
+    setNewSub("");
+    loadSub();
   };
 
   useEffect(() => {
@@ -53,23 +43,18 @@ export default function TodoItem({
 
   // Todo 체크
   const handleMainToggle = async () => {
-    if (todo.user.username !== currentUser)
+    if (!todo.user || todo.user.username !== currentUser)
       return alert("작성자만 체크할 수 있습니다.");
 
-    try {
-      await toggleTodoCheck(todo.id);
-      onUpdate();
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      alert(err.response?.data?.message || "체크 상태 변경에 실패했습니다.");
-    }
+    await toggleTodoCheck(todo.id);
+    onUpdate();
   };
 
   return (
     <div className="todo-item">
       <div className="todo-header">
         {/* 체크박스 (작성자만 가능) */}
-        {todo.user.username === currentUser && (
+        {todo.user && todo.user.username === currentUser && (
           <div
             className={`todo-checkbox ${todo.checked ? "checked" : ""}`}
             onClick={handleMainToggle}
@@ -84,28 +69,39 @@ export default function TodoItem({
           {new Date(todo.createdAt).toLocaleString()}
         </span>
 
-        <button
-          className="delete-btn"
-          onClick={() => onDeleteClick(todo.id, todo.title)}
-        >
-          삭제
-        </button>
+        {/* 삭제 버튼 (작성자만 표시) */}
+        {todo.user && todo.user.username === currentUser && (
+          <button
+            className="delete-btn"
+            onClick={() => onDeleteClick(todo.id, todo.title)}
+          >
+            삭제
+          </button>
+        )}
       </div>
 
-      {/* SubTodo List */}
+      {/* 세부 할일 목록 */}
       <div className="subtodo-list">
         {subTodos.map((s) => (
-          <SubTodoItem key={s.id} subTodo={s} onUpdate={loadSub} />
+          <SubTodoItem 
+            key={s.id} 
+            subTodo={s} 
+            onUpdate={loadSub}
+            isOwner={todo.user ? todo.user.username === currentUser : false}
+          />
         ))}
 
-        <div className="subtodo-input">
-          <input
-            value={newSub}
-            onChange={(e) => setNewSub(e.target.value)}
-            placeholder="세부 항목 입력..."
-          />
-          <button onClick={addSubTodo}>추가</button>
-        </div>
+        {/* SubTodo 입력 (작성자만 표시) */}
+        {todo.user && todo.user.username === currentUser && (
+          <div className="subtodo-input">
+            <input
+              value={newSub}
+              onChange={(e) => setNewSub(e.target.value)}
+              placeholder="세부 항목 입력..."
+            />
+            <button onClick={addSubTodo}>추가</button>
+          </div>
+        )}
       </div>
     </div>
   );

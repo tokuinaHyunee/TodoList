@@ -1,5 +1,6 @@
 package com.todolist.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +21,6 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore // 비밀번호는 JSON 응답에서 제외
     private String password;
-
-    @Column(nullable = false)
-    private String email;
 }

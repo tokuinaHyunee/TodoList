@@ -20,11 +20,6 @@ public class UserService {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
         }
 
-        // 이메일 중복 검증
-        if (userRepository.findByEmail(req.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
-        }
-
         // 비밀번호 검증: 영어 소문자 + 특수문자 필수
         String password = req.getPassword();
         if (password == null || password.trim().isEmpty()) {
@@ -44,7 +39,6 @@ public class UserService {
 
         User user = User.builder()
                 .username(req.getUsername())
-                .email(req.getEmail())
                 .password(password)
                 .build();
 
@@ -64,31 +58,26 @@ public class UserService {
         return user;
     }
 
-    // username 기반 조회 (JwtFilter가 사용)
+    // 사용자명 기반 조회 (JwtFilter가 사용)
     public User loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
     }
 
-    // id 기반 조회 (AuthController가 사용)
+    // ID 기반 조회 (AuthController가 사용)
     public User findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found: " + id));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + id));
     }
 
-    // username 기반 조회 (TodoController가 사용)
+    // 사용자명 기반 조회 (TodoController가 사용)
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
     }
 
     // 아이디 중복 확인
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
-    }
-
-    // 이메일 중복 확인
-    public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
     }
 }

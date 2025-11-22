@@ -1,6 +1,6 @@
 import api from "./axios";
 
-// Todo 타입
+// 할일 타입
 export interface Todo {
   id: number;
   title: string;
@@ -9,7 +9,7 @@ export interface Todo {
   user: { username: string };
 }
 
-// SubTodo 타입
+// 세부 할일 타입
 export interface SubTodo {
   id: number;
   title: string;
@@ -18,12 +18,15 @@ export interface SubTodo {
 }
 
 export const getTodos = () => api.get<Todo[]>("/todos");
+export const getMyTodos = () => api.get<Todo[]>("/todos/my");
 export const createTodo = (title: string) =>
   api.post("/todos", { title });
+export const updateTodo = (id: number, title: string) =>
+  api.patch(`/todos/${id}`, { title });
 export const deleteTodo = (id: number) =>
   api.delete(`/todos/${id}`);
 export const toggleTodoCheck = (id: number) =>
-  api.patch(`/todos/${id}/check`);
+  api.patch(`/todos/${id}/check`, {});
 
 export const getSubTodos = (todoId: number) =>
   api.get<SubTodo[]>(`/subtodos/${todoId}`);
@@ -34,5 +37,17 @@ export const createSubTodo = (todoId: number, title: string) =>
 export const toggleSubTodoCheck = (subTodoId: number) =>
   api.patch(`/subtodos/${subTodoId}/check`);
 
+export const updateSubTodo = (id: number, title: string) =>
+  api.patch(`/subtodos/${id}`, { title });
+
 export const deleteSubTodo = (subTodoId: number) =>
   api.delete(`/subtodos/${subTodoId}`);
+
+// 인증 API
+export interface User {
+  id: number;
+  username: string;
+}
+
+export const getCurrentUser = () => api.get<User>("/auth/me");
+export const logout = () => api.post("/auth/logout");

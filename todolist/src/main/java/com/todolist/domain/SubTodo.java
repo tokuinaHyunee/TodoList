@@ -1,5 +1,6 @@
 package com.todolist.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -28,5 +29,6 @@ public class SubTodo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
+    @JsonIgnore // 순환 참조 방지
     private Todo todo;
 }
