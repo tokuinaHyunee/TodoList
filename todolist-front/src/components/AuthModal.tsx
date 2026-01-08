@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import api from "../api/axios";
+import { login, register, checkUsername } from "../api/todoApi";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -20,18 +20,21 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   const usernameTimerRef = useRef<number | null>(null);
 
   // 아이디 중복 검사
-  const checkUsername = async (value: string) => {
+  const handleCheckUsername = async (value: string) => {
     if (!value.trim()) {
       setUsernameError("");
       return;
     }
     
-    const res = await api.get("/auth/check-username", {
-      params: { username: value }
-    });
-    if (res.data.exists) {
-      setUsernameError("이미 존재하는 아이디입니다.");
-    } else {
+    try {
+      const res = await checkUsername(value);
+      if (res.data.exists) {
+        setUsernameError("이미 존재하는 아이디입니다.");
+      } else {
+        setUsernameError("");
+      }
+    } catch {
+      // 에러 발생 시 중복 검사 실패로 처리하지 않음
       setUsernameError("");
     }
   };
@@ -74,7 +77,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       
       // 500ms 후에 중복 검사 실행
       usernameTimerRef.current = setTimeout(() => {
-        checkUsername(value);
+        handleCheckUsername(value);
       }, 500);
     }
   };
@@ -141,13 +144,13 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
 
     try {
       if (isRegister) {
-        await api.post("/auth/register", { username, password });
+        await register(username, password);
         alert("회원가입 성공!");
         setIsRegister(false);
         setUsername("");
         setPassword("");
       } else {
-        await api.post("/auth/login", { username, password });
+        await login(username, password);
         // 백엔드가 쿠키로 토큰을 보내므로, 성공만 확인
         onLoginSuccess();
       }

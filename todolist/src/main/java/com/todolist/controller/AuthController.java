@@ -42,8 +42,8 @@ public class AuthController {
             HttpSession session) {
         User user = userService.login(req);
 
-        // 1) 세션에 저장
-        session.setAttribute("userId", user.getId());
+        // 1) 세션에 저장 (TodoController와 일관성 유지)
+        session.setAttribute("user", user.getUsername());
 
         // 2) JWT 발급
         String token = jwtUtil.generateToken(user.getUsername());
@@ -58,11 +58,11 @@ public class AuthController {
     // 현재 로그인중인 사용자 조회
     @GetMapping("/me")
     public ResponseEntity<User> currentUser(HttpSession session) {
-        Long id = (Long) session.getAttribute("userId");
-        if (id == null) {
+        String username = (String) session.getAttribute("user");
+        if (username == null) {
             return ResponseEntity.ok().body(null);
         }
-        User user = userService.findById(id);
+        User user = userService.findByUsername(username);
         return ResponseEntity.ok().body(user);
     }
 

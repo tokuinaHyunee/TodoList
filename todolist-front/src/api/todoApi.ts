@@ -51,3 +51,29 @@ export interface User {
 
 export const getCurrentUser = () => api.get<User>("/auth/me");
 export const logout = () => api.post("/auth/logout");
+
+// 인증 관련 API
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  username: string;
+  password: string;
+}
+
+export interface CheckUsernameResponse {
+  exists: boolean;
+}
+
+export const login = (username: string, password: string) =>
+  api.post("/auth/login", { username, password } as LoginRequest);
+
+export const register = (username: string, password: string) =>
+  api.post("/auth/register", { username, password } as RegisterRequest);
+
+export const checkUsername = (username: string) =>
+  api.get<CheckUsernameResponse>("/auth/check-username", {
+    params: { username },
+  });
