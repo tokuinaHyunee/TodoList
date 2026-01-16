@@ -552,7 +552,21 @@ button.secondary-btn:hover,
     color: var(--text-primary);
     font-size: 16px;
     font-weight: bold;
+}
 
+.todo-checkbox.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.todo-checkbox.disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--accent-primary);
+}
+
+.todo-checkbox.clickable {
+    cursor: pointer;
 }
 
 .todo-title {
@@ -959,3 +973,98 @@ button.secondary-btn:hover,
     }
 }
 
+/* ========================
+   페이징 UI
+   ======================== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+/* 페이지 버튼 스타일 */
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 페이지 버튼 호버 효과 */
+.page-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: var(--text-primary);
+    border-color: var(--accent-secondary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 현재 페이지 버튼 활성화 스타일 */
+.page-btn.active {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: var(--text-primary);
+    border-color: var(--accent-secondary);
+    box-shadow: var(--shadow-glow);
+    font-weight: 700;
+}
+
+/* 비활성화된 페이지 버튼 (이전/다음) */
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+/* 페이지 생략 표시 (...) */
+.page-ellipsis {
+    padding: 0.5rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 반응형: 모바일에서 페이징 버튼 크기 조정 */
+@media (max-width: 768px) {
+    .pagination {
+        gap: 0.25rem;
+        margin-top: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination {
+        gap: 0.2rem;
+    }
+
+    .page-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}

@@ -4,11 +4,7 @@ import com.todolist.dto.UserLoginRequest;
 import com.todolist.dto.UserRegisterRequest;
 import com.todolist.domain.User;
 import com.todolist.service.UserService;
-import com.todolist.util.CookieUtil;
-import com.todolist.util.JwtUtil;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import lombok.RequiredArgsConstructor;
@@ -25,8 +21,6 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
 
     // 회원가입
     @PostMapping("/register")
@@ -38,19 +32,11 @@ public class AuthController {
     @PostMapping("/login")
     public String login(
             @RequestBody UserLoginRequest req,
-            HttpServletResponse response,
             HttpSession session) {
         User user = userService.login(req);
 
-        // 1) 세션에 저장 (TodoController와 일관성 유지)
+        // 세션에 저장
         session.setAttribute("user", user.getUsername());
-
-        // 2) JWT 발급
-        String token = jwtUtil.generateToken(user.getUsername());
-
-        // 3) JWT → HttpOnly 쿠키 저장
-        Cookie cookie = cookieUtil.createHttpOnlyCookie("token", token, 60 * 60 * 24);
-        response.addCookie(cookie);
 
         return "로그인 성공";
     }
@@ -66,15 +52,10 @@ public class AuthController {
         return ResponseEntity.ok().body(user);
     }
 
-    // 로그아웃 (세션 + 쿠키 둘 다 제거)
+    // 로그아웃
     @PostMapping("/logout")
-    public String logout(HttpSession session, HttpServletResponse response) {
-
+    public String logout(HttpSession session) {
         session.invalidate();
-
-        Cookie deleteCookie = cookieUtil.deleteCookie("token");
-        response.addCookie(deleteCookie);
-
         return "로그아웃 완료";
     }
 

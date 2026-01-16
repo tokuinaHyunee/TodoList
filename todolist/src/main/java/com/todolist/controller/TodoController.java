@@ -6,9 +6,12 @@ import com.todolist.service.TodoService;
 import com.todolist.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,20 +23,51 @@ public class TodoController {
     private final TodoService todoService;
     private final UserService userService;
 
+    /**
+     * 모든 Todo 조회 (페이징 지원)
+     * @param page 페이지 번호 (0부터 시작, 기본값: 0)
+     * @param size 페이지 크기 (기본값: 10)
+     * @param session HTTP 세션
+     * @return 페이징된 Todo 목록
+     */
     @GetMapping
-    public List<Todo> getTodos(HttpSession session) {
-        // 모든 Todo 반환 (로그인 여부와 관계없이)
-        return todoService.getAllTodos();
+    public Page<Todo> getTodos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
+        // Pageable 객체 생성: 페이지 번호, 크기, 정렬 정보 설정
+        // Sort.by("createdAt").descending() - 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        
+        // 페이징된 Todo 목록 반환
+        return todoService.getAllTodos(pageable);
     }
 
+    /**
+     * 내가 작성한 Todo 조회 (페이징 지원)
+     * @param page 페이지 번호 (0부터 시작, 기본값: 0)
+     * @param size 페이지 크기 (기본값: 10)
+     * @param session HTTP 세션
+     * @return 페이징된 Todo 목록
+     */
     @GetMapping("/my")
-    public List<Todo> getMyTodos(HttpSession session) {
+    public Page<Todo> getMyTodos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
         String username = (String) session.getAttribute("user");
-        if (username == null)
-            return List.of();
+        if (username == null) {
+            // 로그인하지 않은 경우 빈 페이지 반환
+            return Page.empty();
+        }
 
         User user = userService.findByUsername(username);
-        return todoService.getTodos(user.getId());
+        
+        // Pageable 객체 생성: 페이지 번호, 크기, 정렬 정보 설정
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        
+        // 페이징된 Todo 목록 반환
+        return todoService.getTodos(user.getId(), pageable);
     }
 
     @PostMapping

@@ -5,6 +5,8 @@ import com.todolist.dto.UserLoginRequest;
 import com.todolist.dto.UserRegisterRequest;
 import com.todolist.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,9 +14,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // 회원가입
     public User register(UserRegisterRequest req) {
+        System.out.println("register 메서드 호출" + req.getPassword());
         // 아이디 중복 검증
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
@@ -37,9 +41,12 @@ public class UserService {
             throw new RuntimeException("비밀번호에 특수문자를 포함해주세요.");
         }
 
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(password);
+
         User user = User.builder()
                 .username(req.getUsername())
-                .password(password)
+                .password(encodedPassword)
                 .build();
 
         return userRepository.save(user);
@@ -47,18 +54,18 @@ public class UserService {
 
     // 로그인
     public User login(UserLoginRequest req) {
-
         User user = userRepository.findByUsername(req.getUsername())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다."));
 
-        if (!user.getPassword().equals(req.getPassword())) {
+        // 암호화된 비밀번호와 비교
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
         return user;
     }
 
-    // 사용자명 기반 조회 (JwtFilter가 사용)
+    // 사용자명 기반 조회
     public User loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));

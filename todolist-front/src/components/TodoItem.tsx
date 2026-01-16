@@ -47,19 +47,20 @@ export default function TodoItem({
       return alert("작성자만 체크할 수 있습니다.");
 
     await toggleTodoCheck(todo.id);
-    onUpdate();
+    onUpdate(); // Todo 목록 업데이트
+    loadSub(); // SubTodo 목록도 업데이트
   };
 
   return (
     <div className="todo-item">
       <div className="todo-header">
-        {/* 체크박스 (작성자만 가능) */}
-        {todo.user && todo.user.username === currentUser && (
-          <div
-            className={`todo-checkbox ${todo.checked ? "checked" : ""}`}
-            onClick={handleMainToggle}
-          ></div>
-        )}
+        {/* 체크박스 (항상 표시, 작성자만 클릭 가능) */}
+        <div
+          className={`todo-checkbox ${todo.checked ? "checked" : ""} ${
+            todo.user && todo.user.username === currentUser ? "clickable" : "disabled"
+          }`}
+          onClick={handleMainToggle}
+        ></div>
 
         <div className={`todo-title ${todo.checked ? "checked" : ""}`}>
           {todo.title}
@@ -97,6 +98,11 @@ export default function TodoItem({
             <input
               value={newSub}
               onChange={(e) => setNewSub(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addSubTodo();
+                }
+              }}
               placeholder="세부 항목 입력..."
             />
             <button onClick={addSubTodo}>추가</button>
